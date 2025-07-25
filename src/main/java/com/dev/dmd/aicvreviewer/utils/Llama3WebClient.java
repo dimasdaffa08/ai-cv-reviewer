@@ -6,6 +6,7 @@ import com.dev.dmd.aicvreviewer.model.request.Message;
 import com.dev.dmd.aicvreviewer.model.response.AnalyzeCvResponse;
 import com.dev.dmd.aicvreviewer.model.response.LlmResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 @Configuration
+@Log4j2
 public class Llama3WebClient {
 
     private final AiCvReviewerProps props;
@@ -28,16 +30,19 @@ public class Llama3WebClient {
                         .build())
                 ).build();
 
+        log.info("==== Calling Llama3 Web Client ====");
         var response = restClient.post()
                 .uri(props.getUrl().getChatCompletions())
                 .body(bodyRequest)
                 .retrieve()
                 .body(LlmResponse.class);
 
+        log.info("==== Response from Llama3 Web Client: ==== \n {}", response.choices.get(0));
         return response.choices.get(0).message.content;
     }
 
     public AnalyzeCvResponse parseResultToModel(String result) {
+        log.info("==== Analyzing content... ====");
         var analysis = AnalyzeCvResponse.builder();
 
         var scorePattern = Pattern.compile("Score:\\s*(\\d+)");
@@ -64,6 +69,7 @@ public class Llama3WebClient {
             analysis.summary(summaryMatcher.group(1).trim());
         }
 
+        log.info("==== Analysis complete ====");
         return analysis.build();
     }
 }

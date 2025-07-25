@@ -1,0 +1,8 @@
+openai:
+  base-url: http://localhost:11434
+  api-key: dummy
+  model: llama3
+  connect-timeout-ms: 600000
+  read-timeout-ms: 600000
+  url:
+    chat-completions: /v1/chat/completions
